@@ -1,114 +1,119 @@
+  
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
+using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ConsoleApp2
+namespace memes1125
 {
     class Cat
     {
 
-        public string name;
-        public string Name
+
+        
+        public event EventHandler HungryStatusChanged;
+        byte _hungryStatus;
+
+        public  void Feed(byte needfood)
         {
-            get
-            {
-                return name;
-            }
-
-            set
-            {
-                name = value;
-            }
+            
+            HungryStatus += needfood;
+                
         }
-        public DateTime Birthday
-
-
+        public Cat(string name, DateTime birthday)
         {
-            get
-            {
-                return Birthday;
-            }
-
-            set
-            {
-                Birthday = value;
-            }
+            Name = name;
+            Birthday = birthday; 
+            Task.Run(LifeCircle);
         }
+        public string Name { get; set; }
 
-        private int age;
-
-        public int Age
-        {
-            set
-            {
-                if (value < 0)
-                {
-                    Console.WriteLine("Возраст должен быть больше 0");
-                }
-                else
-                {
-                    age = value;
-                }
-            }
-            get { return age; }
-        }
-
-        public byte hungrtstatus;
-
-        public byte HungrtStatus
-        {
-            set
-            {
-                if (value < 0)
-                {
-                    if (value <= 10)
-                    {
-                        Console.WriteLine($"Кошка умирает от голода");
-                    }
-                    if (10 < value && value <= 40)
-                    {
-                        Console.WriteLine($"Кошка очень голодна");
-                    }
-                    if (40 < value && value <= 70)
-                    {
-                        Console.WriteLine($"Кошка хочет кушать");
-                    }
-                    if (70 < value && value <= 90)
-                    {
-                        Console.WriteLine($"Кошка не против перекусить");
-                    }
-                    if (value < 90)
-                    {
-                        Console.WriteLine($"Кошка недавно поела");
-                    }
-                }
-                else
-                {
-                    hungrtstatus = value;
-                }
-
-
-            }
-            get { return hungrtstatus; }
-
-        }
-
-        public void GetStatus()
-        {
-            Console.WriteLine($"Кошку зовут {Name}");
-            Console.WriteLine($"Возраст кошки {Age}");
-            Console.WriteLine($"Голод {hungrtstatus}");
-
-        }
-
-        public void MakeNoise()
+        public void Makenois()
         {
             Console.WriteLine($"{Name} мяукает");
-            Console.WriteLine($"Кошке по имени {Name} уже {age} лет");
+        }
+        public DateTime Birthday { get; set; }
+        public int GatAge()
+        {
+            return (DateTime.Today - Birthday).Days / 365;
+        }
+        public byte HungryStatus
+        {
+            get { return _hungryStatus; }
+            set
+            {
+                if (value < 0)
+                {
+                    _hungryStatus = 0;
+                    HungryStatusChanged?.Invoke(this, null);
+                }
+                else if (value > 100)
+                {
+                    _hungryStatus = 100;
+                    HungryStatusChanged?.Invoke(this, null);
+                }
+                else
+                {
+                    _hungryStatus = value;
+                    HungryStatusChanged?.Invoke(this, null);
+                }
+              
 
+            }
+        }
+        public  string GetStatus() 
+        {
+            if(HungryStatus <= 10)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                return  $"{Name} ,{GatAge()}, Кошка умерает от голода ";
+            }
+            else if (HungryStatus > 10 && HungryStatus <= 40)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+               return $"{Name} ,{GatAge()},Кошка очень голодна";
+            }
+            else if(HungryStatus > 40 && HungryStatus <= 70)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                return $"{Name} ,{GatAge()},Кошка хочет кушать ";
+            }
+            else if(HungryStatus > 70 && HungryStatus <= 90)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                return $"{Name} ,{GatAge()},Кошка не против перекусить ";
+            }
+            else if (HungryStatus > 90)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                return $"{Name} ,{GatAge()},Кошка недавно поела ";
+            }
+            Console.ResetColor();
+            return GetStatus();
+            
+        }
+      
+      async Task LifeCircle()
+        {
+
+            await Task.Delay(10000);
+            HungryStatus -= 10;
+            
+
+            if (HungryStatus == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Black;
+                Console.WriteLine("Кошки нет в живых");
+            }
+            else
+                await LifeCircle();
+            
         }
 
+        
 
     }
 }
